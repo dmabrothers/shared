@@ -1,0 +1,22 @@
+#!/bin/bash
+
+if test -n "$1"
+then
+	REQ="$1"
+	bash software/search "$REQ" >/dev/null
+	setsid xdg-open "результаты/$REQ.html" &
+	exit 0
+fi
+
+while true
+do
+	echo "Введите текст для поиска:"
+	read -r REQ
+	if test -z "$REQ"
+	then
+		exit 0
+	fi
+	bash software/search "$REQ" >/dev/null
+	xdg-open "результаты/$REQ.html" &
+done
+

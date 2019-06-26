@@ -1,0 +1,15 @@
+#!/bin/bash
+
+#remember from file
+
+fail() {
+	>&2 echo "$1"
+	exit 2
+}
+
+D="$HOME/.remember"
+if test -d "$D"
+then
+	ls "$D"
+fi
+

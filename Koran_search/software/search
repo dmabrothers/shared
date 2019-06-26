@@ -1,0 +1,6 @@
+#!/bin/bash
+
+mkdir -p "результаты"
+grep -riE "$1" Kuran | lua software/insert_empty_lines.lua | tee "результаты/$1.utf8"
+cat "результаты/$1.utf8" | lua software/ayat_to_html.lua > "результаты/$1.html"
+

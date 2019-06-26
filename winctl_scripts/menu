@@ -1,0 +1,12 @@
+#!/bin/bash
+
+export IFS='
+'
+
+cmd="`ls $HOME/bin | dmenu`"
+if test -n "$cmd"
+then
+	setsid $cmd &
+	sleep 0.01s
+fi
+

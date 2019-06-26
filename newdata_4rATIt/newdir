@@ -1,0 +1,13 @@
+#!/bin/bash
+
+IFS='
+'
+
+if test -n "$*"
+then
+  d="`newdata $*`"
+else
+  d="`newdata`"
+fi
+xdg-open "$d"
+

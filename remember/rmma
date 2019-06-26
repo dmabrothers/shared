@@ -1,0 +1,27 @@
+#!/bin/bash
+
+#remember from file
+
+fail() {
+	>&2 echo "$1"
+	exit 2
+}
+
+# check arg
+if test "$#" -eq 0
+then
+	fail "Specify the name[s] of what to remember."
+fi
+
+B="$HOME/.remember"
+mkdir -p "$B" || fail "Cannot create parent directory."
+
+while read -r L
+do
+	for A in $@
+	do
+		F="$HOME/.remember/$A"
+		echo "$L" >>"$F"
+	done
+done
+

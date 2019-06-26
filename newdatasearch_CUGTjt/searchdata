@@ -1,0 +1,111 @@
+#!/usr/bin/env lua
+
+local dir = require "pl.dir"
+local path = require "pl.path"
+local pretty = require "pl.pretty"
+local clonetable = require "clonetable"
+
+pp = function (...)
+  print(pretty.write(...))
+end
+
+local TDIR = "_tags1"
+
+local function matchstrlist (str, list)
+  for i, v in ipairs(list) do
+    --print("chk", str, v, string.find(str, v))
+    if string.find(v, str) then
+      --print("str yes")
+      return true
+    end
+  end
+  --print("str no")
+  return false
+end
+
+local function matchstrslist (strs, list)
+  for i, v in ipairs(strs) do
+    if matchstrlist(v, list) then
+      --print("strs yes")
+      return true
+    end
+  end
+  --print("strs no")
+  return false
+end
+
+local datarecproto = {}
+
+function datarecproto:clone ()
+  return clonetable(self)
+end
+
+function datarecproto:getkeywords (words)
+  local w = {}
+  table.insert(w, self.name)
+  for i, v in ipairs(self.tags or {}) do
+    table.insert(w, v)
+  end
+  return w
+end
+
+function datarecproto:match (words)
+  local w = self:getkeywords()
+  --pp({words = words, w = w})
+  if matchstrslist(words, w) then
+    return true
+  else
+    return false
+  end
+end
+
+local function basenames (list)
+  local names = {}
+  for i, d in ipairs(list) do
+    names[i] = path.basename(d)
+  end
+  return names
+end
+
+local function concatlists (...)
+  a = {...}
+  ret = {}
+  for i, l in ipairs(a) do
+    for i, v in ipairs(l) do
+      table.insert(ret, v)
+    end
+  end
+  return ret
+end
+
+function dir.getallbasenames (p)
+  local f = basenames(dir.getfiles(p))
+  local d = basenames(dir.getdirectories(p))
+  local j = concatlists(f, d)
+  return j
+end
+
+
+
+local list = dir.getdirectories("/home/data")
+local recs = {}
+for i, d in ipairs(list) do
+  local new = datarecproto:clone()
+  new.name = path.basename(d)
+  new.path = d
+  local tpath = path.join(d, TDIR)
+  new.tpath = tpath
+  if path.isdir(tpath) then
+    new.tags = dir.getallbasenames(tpath)
+  end
+  table.insert(recs, new)
+end
+
+for i, rec in ipairs(recs) do
+  if rec:match(arg) then
+    print(rec.path)
+  else
+    --print(rec.path, "NO")
+  end
+end
+

@@ -1,0 +1,46 @@
+#!/bin/bash
+
+IFS='
+'
+
+function join_by {
+	local d=$1;
+	shift;
+	echo -n "$1";
+	shift;
+	printf "%s" "${@/#/$d}";
+}
+
+function show_not_tagged {
+	for d in `ls -d *`
+	do
+		if test -d $d
+		then
+			if ! test -d $d/_tags1
+			then
+				echo $d
+			fi
+		fi
+	done
+}
+
+P="$1"
+if test -z "$P"
+then
+	P="."
+fi
+
+if test "$P" = "-n"
+then
+	show_not_tagged
+	exit 0
+fi
+
+for dir in `find -L "$P" -name _tags1`
+do
+	name="`dirname $dir`"
+	tags=(`ls $dir`)
+	tagsstr="`join_by ", " ${tags[@]}`"
+	echo "$name - $tagsstr"
+done
+

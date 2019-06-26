@@ -1,0 +1,15 @@
+#!/bin/bash
+
+IFS='
+'
+
+p="$*"
+if test -z "$p"
+then
+  p=file
+fi
+
+d="`newdata $p`"
+touch "$d/$p"
+xdg-open "$d"
+

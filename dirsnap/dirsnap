@@ -1,0 +1,68 @@
+#!/bin/bash
+
+# dirsnap v2.1
+# Directory snapshot (catalog)
+# Usage: "dirsnap <src_dir> <dest_dir>"
+# Making all directories,subdirectories and files of src_dir in dest_dir,
+# but all files in dest_dir will have zero length.
+# In this version operation progress displayed.
+
+IFS='
+'
+
+SRC=$1
+DST=$2
+
+if test -z "$SRC" || test -z "$DST"; then exit 1; fi
+if ! test -d "$SRC"; then exit 2; fi
+if test "${SRC:${#SRC}-1}" = "/"; then SRC="${SRC:0:${#SRC}-1}"; fi
+if test "${DST:${#DST}-1}" = "/"; then DST="${DST:0:${#DST}-1}"; fi
+
+# VERBOSE
+printf "scanning \"$SRC\" directory...\n"
+
+for FILE in $(find "$SRC" -type d)
+do
+	DIRECTORIES[${#DIRECTORIES[@]}]="$DST${FILE:${#SRC}}"
+done
+
+for FILE in $(find "$SRC" -type f)
+do
+	FILES[${#FILES[@]}]="$DST${FILE:${#SRC}}"
+done
+
+# VERBOSE
+printf "\"$SRC\" directory scanned: "
+printf "${#FILES[@]} files in ${#DIRECTORIES[@]} directories\n"
+printf "target directory is \"$DST\", now creating files there...\n"
+
+# STATUS
+C=0
+(( FSUM = ${#DIRECTORIES[@]} + ${#FILES[@]} ))
+
+for F in ${DIRECTORIES[@]}
+do
+	install -d "$F"
+
+	# STATUS
+	(( C = $C + 1 ))
+	(( P = ($C * 100) / $FSUM ))
+
+	# VERBOSE
+	printf "\r$C/$FSUM ($P%%)"
+done
+
+for F in ${FILES[@]}
+do
+	install -D /dev/null "$F"
+
+	# STATUS
+	(( C = $C + 1 ))
+	(( P = ($C * 100) / $FSUM ))
+
+	# VERBOSE
+	printf "\r$C/$FSUM ($P%%)"
+done
+
+# VERBOSE
+printf "\r$C files created, all done!        \n"

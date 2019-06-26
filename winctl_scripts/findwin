@@ -1,0 +1,55 @@
+#!/usr/bin/env lua
+
+local function execreadlines (cmd)
+  local pd = assert(io.popen(cmd, "r"))
+  return assert(pd:lines())
+end
+
+function printf(...)
+  print(string.format(...))
+end
+
+local function fileread(fname)
+  local fd = assert(io.open(fname, "rb"))
+  local data = assert(fd:read("*a"))
+  assert(fd:close())
+  return data
+end
+
+local function filewrite(fname, data)
+  local fd = assert(io.open(fname, "wb"))
+  assert(fd:write(data))
+  assert(fd:close())
+end
+
+local vars = {}
+local rev = {}
+local idx = 1
+for line in execreadlines("wmctrl -l -x") do
+  local id, desk, class, user, title = string.match(line,
+      "(%S+)%s+(%S+)%s+(%S+)%s+(%S+)%s+(.*)")
+  local str = string.format("[d%-2d] #%d %-50s  %s",
+      desk, idx, class, title)
+  idx = idx + 1
+  table.insert(vars, str)
+  rev[str] = {
+    id = id,
+    desk = desk,
+    class = class,
+    user = user,
+    title = title,
+  }
+end
+varss = table.concat(vars, "\n").."\n"
+tmpf = os.tmpname()
+filewrite(tmpf, varss)
+local sel = {}
+for l in execreadlines(string.format("cat \"%s\" | dmenu -i -l 60", tmpf)) do
+  table.insert(sel, l)
+end
+os.remove(tmpf)
+if sel[1] then
+  local winid = assert(rev[sel[1]].id)
+  os.execute(string.format("wmctrl -i -a %s", winid))
+end
+

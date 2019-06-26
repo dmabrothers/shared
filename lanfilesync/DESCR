@@ -1,0 +1,17 @@
+syncronizes files over LAN network
+
+usage:
+
+  run "lanrecv.lua" on destination machine
+  run "lansend.lua" on source machine
+
+  on source machine:
+    select destination machine IP from list
+    select file to send from list
+    wait until file transfers completely
+
+  on destination machine:
+    just wait until process will be completed
+
+  close programs on both machines
+

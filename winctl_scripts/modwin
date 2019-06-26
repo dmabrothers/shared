@@ -1,0 +1,61 @@
+#!/usr/bin/env lua
+
+local function execreadlines (cmd)
+  local pd = assert(io.popen(cmd, "r"))
+  return assert(pd:lines())
+end
+
+function printf(...)
+  print(string.format(...))
+end
+
+local function fileread(fname)
+  local fd = assert(io.open(fname, "rb"))
+  local data = assert(fd:read("*a"))
+  assert(fd:close())
+  return data
+end
+
+local function filewrite(fname, data)
+  local fd = assert(io.open(fname, "wb"))
+  assert(fd:write(data))
+  assert(fd:close())
+end
+
+varss = table.concat({
+  "maximize",
+  "minimize",
+  "vertical maximize",
+  "horizontal maximize",
+  --"maximize vertically",
+  --"maximize horizontally",
+  --"minimize",
+  "normal",
+  "fullscreen",
+}, "\n").."\n"
+tmpf = os.tmpname()
+filewrite(tmpf, varss)
+local sel = {}
+for l in execreadlines(string.format("cat \"%s\" | dmenu -i", tmpf)) do
+--for l in execreadlines(string.format("cat \"%s\" | dmenu -i -l 60", tmpf)) do
+  table.insert(sel, l)
+end
+os.remove(tmpf)
+if sel[1] then
+  local act = sel[1]
+  if     act == "maximize" then
+    os.execute(string.format("wmctrl -b toggle,maximized_vert,maximized_horz -r :ACTIVE:", winid))
+  elseif act == "normal" then
+    os.execute(string.format("wmctrl -b remove,maximized_vert,maximized_horz -r :ACTIVE:", winid))
+  elseif act == "horizontal maximize" then
+    os.execute(string.format("wmctrl -b toggle,maximized_horz -r :ACTIVE:", winid))
+  elseif act == "vertical maximize" then
+    os.execute(string.format("wmctrl -b toggle,maximized_vert -r :ACTIVE:", winid))
+  elseif act == "fullscreen" then
+    os.execute(string.format("wmctrl -b toggle,fullscreen -r :ACTIVE:", winid))
+  elseif act == "minimize" then
+    os.execute(string.format("xdotool getactivewindow windowminimize", winid))
+  else
+  end
+end
+

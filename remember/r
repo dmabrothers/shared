@@ -1,0 +1,25 @@
+#!/bin/bash
+
+#remember from file
+
+fail() {
+	>&2 echo "$1"
+	exit 2
+}
+
+# check arg
+if test -z "$1"
+then
+	fail "What should I remember?"
+fi
+
+F="$HOME/.remember/$1"
+
+# cat file if it exists, error otherwise
+if test -f "$F"
+then
+	cat "$F"
+else
+	fail "I cannot remember $1."
+fi
+

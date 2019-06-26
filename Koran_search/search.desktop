@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Version=1.0
+Name=search
+GenericName=search
+Exec=bash software/search_ui
+Icon=system-search
+Terminal=true

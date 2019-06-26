@@ -1,0 +1,36 @@
+#!/bin/bash
+
+#forget file[s]
+
+eecho() {
+	>&2 echo $@
+}
+
+fail() {
+	>&2 echo "$1"
+	exit 2
+}
+
+# check arg
+if test "$#" -eq 0
+then
+	fail "What should I forget?"
+fi
+
+RETCODE=0
+
+for A in $@
+do
+	F="$HOME/.remember/$A"
+	# remove file if it exists, error otherwise
+	if test -f "$F"
+	then
+		rm "$F"
+	else
+		eecho "I hadn't remember that: $A."
+		RETCODE=1
+	fi
+done
+
+exit $RETCODE
+

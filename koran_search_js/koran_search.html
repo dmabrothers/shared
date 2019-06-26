@@ -1,0 +1,80 @@
+<html><head>
+		<meta http-equiv="Content-type" content="text/html; charset=UTF-8"> 
+		<script language="JavaScript" type="text/javascript" src="koran.js"></script>
+		<script language="JavaScript" type="text/javascript">
+
+			// source: https://stackoverflow.com/questions/2998784/how-to-output-integers-with-leading-zeros-in-javascript
+			function pad (num, size) {
+				var s = num+"";
+				while (s.length < size) s = "0" + s;
+				return s;
+			}
+
+			function genAyatSuriReport (suri, ayat) {
+				var ref;
+				if (suri.shortlatname == "fatiha") {
+					ref = "koran_na_russkom/fatiha.html";
+				} else {
+					ref = "koran_na_russkom/suri-" + pad(suri.number, 3) + "-" + suri.shortlatname + ".html";
+				}
+					var rlink = "<a href=\"" + ref + "\">" +
+					"<b>" + suri.fullrusname + "</b></a>, номер суры " + suri.number;
+				var rtext;
+				if (ayat.number != null) {
+					rtext = ayat.number + ". " + ayat.text;
+				} else {
+					rtext = ayat.text;
+				}
+				return rlink + "<br>" + rtext;
+			}
+
+			function onSearchSubmit () {
+				var res = document.getElementById("results");
+				var kwds_str = document.getElementById("kwds").value.toString();
+				var kwds = kwds_str.split(" ");
+				var surino, ayatno, kwdno, kwd, suriobj, ayatobj, ismatch;
+				var res_array = [];
+				for (surino = 0; surino < koran_suri.length; surino++) {
+					suriobj = koran_suri[surino];
+					for (ayatno = 0; ayatno < suriobj.ayaty.length; ayatno++) {
+						ayatobj = suriobj.ayaty[ayatno];
+						ismatch = true;
+						for (kwdno = 0; kwdno < kwds.length; kwdno++) {
+							kwd = kwds[kwdno];
+							if (ayatobj.text.toLowerCase().match(kwd.toLowerCase()) == null) {
+								ismatch = false
+							}
+						}
+						if (ismatch) {
+							res_array.push(genAyatSuriReport(suriobj, ayatobj));
+						}
+					}
+				}
+				if (res_array.length > 0) {
+					res.innerHTML = res_array.join("<br><br>");
+				} else {
+
+					res.innerHTML = "<i>ничего не найдено</i>";
+				}
+
+				return false;
+			}
+		</script>
+	</head>
+
+	<body>
+		<h3>Поиск в Коране по ключевым словам</h3>
+		<i>Используется смысловой перевод Корана Э. Кулиевым</i>
+		<br>
+		<br>
+		<form name="koran_search_input" method="get" onsubmit="return onSearchSubmit();" action="">
+  		<p>
+				<b>ключевые слова или части слов:</b>
+				<input id="kwds" size="40" value="" type="text">
+				<input value="поиск" type="submit">
+			</p>
+		</form>
+		<div id="results"></div>
+	
+
+</body></html>

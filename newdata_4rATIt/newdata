@@ -1,0 +1,17 @@
+#!/bin/bash
+
+prefix="$*"
+
+IFS='
+'
+
+if test -n "$prefix"
+then
+  d=`mktemp -d "/home/data/${prefix}_XXXXXX"`
+else
+  d=`mktemp -d "/home/data/XXXXXX"`
+fi
+
+echo "$d" >"$HOME/newdata"
+echo "$d"
+
